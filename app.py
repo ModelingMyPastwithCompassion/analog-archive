@@ -7,7 +7,7 @@ import re
 from PIL import Image
 import streamlit as st
 import gdown
-
+import io
 # העלמת התפריטים המובנים של פלטפורמת Streamlit למראה נקי לחלוטין
 hide_st_style = """
             <style>
@@ -17,6 +17,23 @@ hide_st_style = """
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
+st.markdown("""
+<style>
+    .stApp {
+        background-color: #0a0a0a;
+    }
+    html, body, [class*="css"] {
+        font-family: 'Courier New', Courier, monospace;
+        color: #d3d3d3;
+    }
+    h1 {
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 15px;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # הורדה אוטומטית של הזיפ מ-Google Drive וחילוצו (מתבצע פעם אחת בעליית השרת)
 @st.cache_resource
@@ -177,6 +194,18 @@ if st.button("Dive Into"):
         final_output = cv2.cvtColor(blended, cv2.COLOR_BGR2RGB)
         
         st.image(final_output, caption="Processed Analog Frame")
+        # המרת התמונה לקובץ הניתן להורדה
+buf = io.BytesIO()
+# שים לב: אם משתנה התמונה הסופית שלך נקרא אחרת בקוד (למשל result_image), החלף את המילה final_image בשם שלו
+final_image.save(buf, format="PNG")
+byte_im = buf.getvalue()
+
+st.download_button(
+    label="Download Memory",
+    data=byte_im,
+    file_name="analog_memory.png",
+    mime="image/png"
+)        
         st.markdown(f"""
         🧠 **Machine Memory Log:**
         * **Processing Method:** {processing_name}
