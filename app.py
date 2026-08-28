@@ -8,6 +8,7 @@ from PIL import Image
 import streamlit as st
 import gdown
 import io
+
 # העלמת התפריטים המובנים של פלטפורמת Streamlit למראה נקי לחלוטין
 hide_st_style = """
             <style>
@@ -17,6 +18,7 @@ hide_st_style = """
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
+
 st.markdown("""
 <style>
     .stApp {
@@ -70,8 +72,8 @@ st.markdown("""
 POLITE_WORDS = ["please", "thanks", "thank you", "love"]
 STOP_WORDS = ["show", "me", "the", "a", "an", "and", "with", "in", "on", "of", "to", "is", "are"]
 
-# שורת החיפוש
-user_prompt = st.text_input("Enter Memory (Must include 'please', 'thanks', 'thank you', or 'love' to access)", value="Please show me a woman, thank you")
+# שורת החיפוש - עכשיו נקייה וריקה בעליית האתר
+user_prompt = st.text_input("Enter Memory", value="")
 
 if st.button("Dive Into"):
     with st.spinner("Accessing Machine Memory..."):
@@ -194,18 +196,20 @@ if st.button("Dive Into"):
         final_output = cv2.cvtColor(blended, cv2.COLOR_BGR2RGB)
         
         st.image(final_output, caption="Processed Analog Frame")
-        # המרת התמונה לקובץ הניתן להורדה
-buf = io.BytesIO()
-# שים לב: אם משתנה התמונה הסופית שלך נקרא אחרת בקוד (למשל result_image), החלף את המילה final_image בשם שלו
-final_image.save(buf, format="PNG")
-byte_im = buf.getvalue()
+        
+        # --- המרת התמונה לקובץ הניתן להורדה ---
+        buf = io.BytesIO()
+        img_to_download = Image.fromarray(final_output)
+        img_to_download.save(buf, format="PNG")
+        byte_im = buf.getvalue()
 
-st.download_button(
-    label="Download Memory",
-    data=byte_im,
-    file_name="analog_memory.png",
-    mime="image/png"
-)        
+        st.download_button(
+            label="Download Memory",
+            data=byte_im,
+            file_name="analog_memory.png",
+            mime="image/png"
+        )        
+        
         st.markdown(f"""
         🧠 **Machine Memory Log:**
         * **Processing Method:** {processing_name}
