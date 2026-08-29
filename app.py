@@ -9,7 +9,7 @@ import streamlit as st
 import gdown
 import io
 
-# העלמת התפריטים המובנים של פלטפורמת Streamlit למראה נקי לחלוטין
+# העלמת התפריטים המובנים של פלטפורמת Streamlit למראה נקי
 hide_st_style = """
             <style>
             #MainMenu {visibility: hidden;}
@@ -19,35 +19,76 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# עיצוב אסתטי: רקע שחור עמוק ופונט קוד טהור (Consolas / Monaco)
+# עיצוב מקיף: Ubuntu, רקע, מסוף ירוק, ומוניטור
 st.markdown("""
 <style>
+    /* ייבוא פונט Ubuntu */
+    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
+    
+    * {
+        font-family: 'Ubuntu', sans-serif !important;
+    }
+    
+    /* תמונת רקע עם פילטר השחרה */
     .stApp {
-        background-color: #0a0a0a;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url("https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop") !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
     }
-    html, body, [class*="css"], .stTextInput input, .stButton button {
-        font-family: Consolas, Monaco, 'Courier New', Courier, monospace !important;
-        color: #d3d3d3;
+    
+    p, span, label, li, em, strong {
+        color: #d3d3d3 !important;
+        line-height: 1.6 !important;
     }
+    
+    /* עיצוב הכותרת הראשית - ממורכזת ובשורה אחת */
     h1 {
+        color: #ffffff !important;
         text-transform: uppercase;
-        letter-spacing: 3px;
-        border-bottom: 1px solid #333;
-        padding-bottom: 15px;
+        letter-spacing: 2px !important;
+        text-align: center !important;
+        border-bottom: none !important;
+        padding-bottom: 20px;
     }
+    
+    /* תיבת הטקסט (הקלט) - חצי שקופה עם טקסט ירוק פלואורסצנטי */
     .stTextInput input {
-        background-color: #141414;
-        color: #ffffff;
-        border: 1px solid #333;
+        background-color: rgba(10, 10, 10, 0.8) !important;
+        color: #39ff14 !important; /* ירוק זרחני */
+        border: 1px solid #444 !important;
+        border-radius: 5px !important;
+        padding: 10px !important;
+        font-weight: bold !important;
+        letter-spacing: 1px;
     }
+    
+    /* עיצוב הכפתורים */
     .stButton button {
-        background-color: #1c1c1c;
-        color: #ffffff;
-        border: 1px solid #444;
+        background-color: rgba(26, 26, 26, 0.8) !important;
+        color: #ffffff !important;
+        border: 1px solid #555 !important;
+        border-radius: 5px !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        display: block;
+        margin: 0 auto; /* ממורכז */
     }
+    
     .stButton button:hover {
-        background-color: #333333;
-        border-color: #666;
+        background-color: rgba(51, 51, 51, 0.9) !important;
+        border-color: #39ff14 !important; /* מסגרת ירוקה במעבר עכבר */
+        color: #39ff14 !important;
+    }
+    
+    /* מסגרת תעשייתית לתמונה (מוניטור) */
+    [data-testid="stImage"] img {
+        border: 6px solid #111 !important;
+        border-radius: 15px !important;
+        padding: 4px !important;
+        background-color: #222 !important;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -76,20 +117,22 @@ def setup_archive():
 
 data_dir = setup_archive()
 
-# UI Texts - המניפסט והכותרות האמנותיות
-st.title("📼 Modeling My Past with Compassion")
+# UI Texts - כותרת ללא אימוג'י
+st.title("Modeling My Past with Compassion")
 st.markdown("""
-*This engine is independently produced, its data sourced from 90s VHS tapes shot by my mother or father. The cinematography credit belongs to them. Using this raw technology, designed to preserve the original aesthetic, we can touch the memories of the past. The engine is built to simulate our memory: distorting, adding or subtracting details, and scrambling the sequence of events. Is this how it really was, or is this how I want to remember it?*
-
-**Please treat these materials with compassion.**
-""")
+<div style="text-align: center;">
+<em>This engine is independently produced, its data sourced from 90s VHS tapes shot by my mother or father. The cinematography credit belongs to them. Using this raw technology, designed to preserve the original aesthetic, we can touch the memories of the past. The engine is built to simulate our memory: distorting, adding or subtracting details, and scrambling the sequence of events. Is this how it really was, or is this how I want to remember it?</em><br><br>
+<strong>Please treat these materials with compassion.</strong>
+</div>
+<br>
+""", unsafe_allow_html=True)
 
 POLITE_WORDS = ["please", "thanks", "thank you", "love"]
 STOP_WORDS = ["show", "me", "the", "a", "an", "and", "with", "in", "on", "of", "to", "is", "are"]
 
 user_prompt = st.text_input("Enter Memory", value="")
 
-# שמירת התמונה בזיכרון של Streamlit Session כדי שלא תיעלם בלחיצה על הורדה
+# שמירת התמונה בזיכרון של Streamlit Session 
 if "generated_image" not in st.session_state:
     st.session_state.generated_image = None
 if "download_bytes" not in st.session_state:
@@ -207,19 +250,22 @@ if st.button("Dive Into"):
         final_output = cv2.cvtColor(blended, cv2.COLOR_BGR2RGB)
         st.session_state.generated_image = final_output
         
-        # הכנה מראש של קובץ להורדה ושמירתו בזיכרון
         buf = io.BytesIO()
         Image.fromarray(final_output).save(buf, format="PNG")
         st.session_state.download_bytes = buf.getvalue()
 
-# הצגת התמונה וכפתור ההורדה מתוך הזיכרון (כדי שלא ייעלמו בלחיצה)
-if st.session_state.generated_image is not None:
-    st.image(st.session_state.generated_image)
-    
-    if st.session_state.download_bytes is not None:
-        st.download_button(
-            label="Save this memory",
-            data=st.session_state.download_bytes,
-            file_name="analog_memory.png",
-            mime="image/png"
-        )
+# מירכוז התמונה והכפתור בתצוגה
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.session_state.generated_image is not None:
+        st.image(st.session_state.generated_image)
+        
+        st.write("") # מרווח קטן
+        
+        if st.session_state.download_bytes is not None:
+            st.download_button(
+                label="Save this memory",
+                data=st.session_state.download_bytes,
+                file_name="analog_memory.png",
+                mime="image/png"
+            )
