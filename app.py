@@ -23,14 +23,18 @@ h1 a, h2 a, h3 a, .st-emotion-cache-1vt4ygl {
 """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# קריאת קבצים מקומיים והמרתם לקוד
+# קריאת קבצים מקומיים והמרתם לקוד (Base64)
 def get_base64_file(file_path):
     if os.path.exists(file_path):
         with open(file_path, "rb") as file:
             return base64.b64encode(file.read()).decode()
     return ""
 
-# הגדרת הרקע לכל האתר
+# ==========================================
+# טעינת קבצי מדיה מראש
+# ==========================================
+
+# רקע התמונה הקבוע (למסך הפתיחה ולמנוע)
 bg_image_path = "Screenshot 2026-08-22 210850.png"
 bg_base64 = get_base64_file(bg_image_path)
 
@@ -39,22 +43,21 @@ if bg_base64:
 else:
     bg_css = 'url("https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop")'
 
-st.markdown(f"""
-<style>
-.stApp {{
-    background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), {bg_css} !important;
-    background-size: cover !important;
-    background-position: center !important;
-    background-attachment: fixed !important;
-}}
-</style>
-""", unsafe_allow_html=True)
+# רקע הוידאו למסך ה-NO
+video_bg_path = "surreal_room (2).mp4"
+video_base64 = get_base64_file(video_bg_path)
 
-# הגדרת קובץ הסאונד
+# סאונד עבור כפתור Dive Into
 audio_file_path = "VTS_01_2-[AudioTrimmer.com].mp3"
 audio_base64 = get_base64_file(audio_file_path)
 
+# סאונד פתיחה (יוצג כנגן שמע) - החלף לשם הקובץ שתעלה!
+audio_intro_path = "INTRO_AUDIO.mp3"
+audio_intro_base64 = get_base64_file(audio_intro_path)
+
+# ==========================================
 # עיצוב מקיף ורספונסיבי
+# ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
@@ -77,6 +80,8 @@ st.markdown("""
         padding-bottom: 20px;
         font-size: 2.2rem !important; 
         white-space: nowrap !important;
+        position: relative;
+        z-index: 10;
     }
     
     .stTextInput input {
@@ -98,6 +103,8 @@ st.markdown("""
         letter-spacing: 1px;
         font-weight: bold !important;
         transition: all 0.3s ease;
+        position: relative;
+        z-index: 10;
     }
     
     .stButton button:hover {
@@ -113,6 +120,14 @@ st.markdown("""
         padding: 4px !important;
         background-color: #222 !important;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+    }
+    
+    /* עיצוב נגן האודיו במסך הפתיחה */
+    audio {
+        border-radius: 5px !important;
+        width: 100% !important;
+        height: 35px !important;
+        outline: none !important;
     }
 
     @media (max-width: 768px) {
@@ -165,39 +180,76 @@ data_dir = setup_archive()
 
 # ניהול מצבי מסך בעזרת Session State
 if "human_status" not in st.session_state:
-    st.session_state.human_status = "pending" # pending, yes, no
+    st.session_state.human_status = "pending"
 
 # ==========================================
 # מסך 1: שער הכניסה (האם אתה אנושי?)
 # ==========================================
 if st.session_state.human_status == "pending":
+    # החלת רקע התמונה
+    st.markdown(f"""
+    <style>
+    .stApp {{
+        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), {bg_css} !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
     st.markdown("<h1>ARE YOU A HUMAN?</h1>", unsafe_allow_html=True)
     st.write("")
-    st.write("")
     
-    # מיקום הכפתורים זה לצד זה
+    # נגן אודיו שקט למסך הפתיחה 
+    if audio_intro_base64:
+        intro_audio_html = f"""
+            <div style="text-align: center; max-width: 300px; margin: 0 auto; margin-bottom: 20px;">
+            <audio controls>
+            <source src="data:audio/mp3;base64,{audio_intro_base64}" type="audio/mpeg">
+            Your browser does not support the audio element.
+            </audio>
+            </div>
+            """
+        st.markdown(intro_audio_html, unsafe_allow_html=True)
+    
+    st.write("")
     col1, col2, col3, col4, col5 = st.columns([1, 2, 1, 2, 1])
     with col2:
         if st.button("YES", use_container_width=True):
             st.session_state.human_status = "yes"
-            st.rerun() # רענון מיידי של המסך
+            st.rerun()
     with col4:
         if st.button("NO", use_container_width=True):
             st.session_state.human_status = "no"
             st.rerun()
 
 # ==========================================
-# מסך 2: תשובה שלילית (מכונה)
+# מסך 2: תשובה שלילית (וידאו רקע)
 # ==========================================
 elif st.session_state.human_status == "no":
-    st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
-    # כותרת למסך השלילי
-    st.markdown("<h1 style='color: #ff3333 !important;'>ACCESS RESTRICTED</h1>", unsafe_allow_html=True)
     
-   # --- כאן אתה מכניס את ההודעה המסוימת שלך ---
+    # הזרקת הוידאו כרקע מלא לכל המסך
+    if video_base64:
+        video_html = f"""
+        <style>
+        .stApp {{ background: black !important; }}
+        </style>
+        <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; object-fit: cover; opacity: 0.6;">
+            <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
+        </video>
+        """
+        st.markdown(video_html, unsafe_allow_html=True)
+    else:
+        # גיבוי רקע שחור למקרה שהוידאו לא נטען
+        st.markdown("<style>.stApp { background: black !important; }</style>", unsafe_allow_html=True)
+
+    st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color: #ff3333 !important; text-shadow: 2px 2px 10px black;'>ACCESS RESTRICTED</h1>", unsafe_allow_html=True)
+    
     st.markdown("""
-    <div style="text-align: center;">
+    <div style="text-align: center; position: relative; z-index: 10; text-shadow: 1px 1px 5px black;">
     <strong>Come back anytime</strong><br>
     <em>when you feel more human.</em>
     </div>
@@ -215,6 +267,18 @@ elif st.session_state.human_status == "no":
 # מסך 3: המנוע עצמו (תשובה חיובית)
 # ==========================================
 elif st.session_state.human_status == "yes":
+    
+    # החזרת רקע התמונה
+    st.markdown(f"""
+    <style>
+    .stApp {{
+        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), {bg_css} !important;
+        background-size: cover !important;
+        background-position: center !important;
+        background-attachment: fixed !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
     
     st.title("Modeling My Past with Compassion")
     st.markdown("""
