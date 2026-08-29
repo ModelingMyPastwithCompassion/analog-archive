@@ -20,7 +20,7 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# קריאת התמונה המקומית (שהעלית לגיטהאב) והמרתה לקוד כדי לעקוף חסימות של מאגר פרטי
+# קריאת התמונה המקומית והמרתה לקוד
 def get_base64_image(image_path):
     if os.path.exists(image_path):
         with open(image_path, "rb") as img_file:
@@ -33,7 +33,6 @@ bg_base64 = get_base64_image(bg_image_path)
 if bg_base64:
     bg_css = f'url("data:image/png;base64,{bg_base64}")'
 else:
-    # תמונת גיבוי במקרה שהקובץ לא נמצא
     bg_css = 'url("https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop")'
 
 # הזרקת תמונת הרקע לאתר
@@ -48,10 +47,9 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# עיצוב מקיף: Ubuntu, מסוף ירוק, מוניטור, וכותרת בשורה אחת
+# עיצוב מקיף
 st.markdown("""
 <style>
-    /* ייבוא פונט Ubuntu */
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
     
     * {
@@ -63,7 +61,6 @@ st.markdown("""
         line-height: 1.6 !important;
     }
     
-    /* עיצוב הכותרת הראשית - ממורכזת, מוקטנת ובשורה אחת */
     h1 {
         color: #ffffff !important;
         text-transform: uppercase;
@@ -71,14 +68,13 @@ st.markdown("""
         text-align: center !important;
         border-bottom: none !important;
         padding-bottom: 20px;
-        font-size: 2.2rem !important; /* הקטנת הגופן */
-        white-space: nowrap !important; /* כפיית שורה אחת */
+        font-size: 2.2rem !important; 
+        white-space: nowrap !important;
     }
     
-    /* תיבת הטקסט (הקלט) - חצי שקופה עם טקסט ירוק פלואורסצנטי */
     .stTextInput input {
         background-color: rgba(10, 10, 10, 0.8) !important;
-        color: #39ff14 !important; /* ירוק זרחני */
+        color: #39ff14 !important;
         border: 1px solid #444 !important;
         border-radius: 5px !important;
         padding: 10px !important;
@@ -86,7 +82,6 @@ st.markdown("""
         letter-spacing: 1px;
     }
     
-    /* עיצוב הכפתורים */
     .stButton button {
         background-color: rgba(26, 26, 26, 0.8) !important;
         color: #ffffff !important;
@@ -96,16 +91,15 @@ st.markdown("""
         letter-spacing: 1px;
         transition: all 0.3s ease;
         display: block;
-        margin: 0 auto; /* ממורכז */
+        margin: 0 auto;
     }
     
     .stButton button:hover {
         background-color: rgba(51, 51, 51, 0.9) !important;
-        border-color: #39ff14 !important; /* מסגרת ירוקה במעבר עכבר */
+        border-color: #39ff14 !important;
         color: #39ff14 !important;
     }
     
-    /* מסגרת תעשייתית לתמונה (מוניטור) */
     [data-testid="stImage"] img {
         border: 6px solid #111 !important;
         border-radius: 15px !important;
@@ -116,7 +110,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# הורדה אוטומטית של הזיפ מ-Google Drive וחילוצו
 @st.cache_resource
 def setup_archive():
     data_dir = "clean_data"
@@ -140,7 +133,6 @@ def setup_archive():
 
 data_dir = setup_archive()
 
-# UI Texts - כותרת ללא אימוג'י
 st.title("Modeling My Past with Compassion")
 st.markdown("""
 <div style="text-align: center;">
@@ -155,7 +147,6 @@ STOP_WORDS = ["show", "me", "the", "a", "an", "and", "with", "in", "on", "of", "
 
 user_prompt = st.text_input("Enter Memory", value="")
 
-# שמירת התמונה בזיכרון של Streamlit Session 
 if "generated_image" not in st.session_state:
     st.session_state.generated_image = None
 if "download_bytes" not in st.session_state:
@@ -192,14 +183,15 @@ if st.button("Dive Into"):
                             if score > 0:
                                 matching_images.append((img_path, score, text_content))
 
-        size = 512
+        # הגדלת הרזולוציה ל-1024
+        size = 1024
 
         if not matching_images:
             empty_frame = np.zeros((size, size, 3), dtype=np.uint8)
             noise = np.random.randint(0, 30, (size, size, 3), dtype=np.uint8)
             empty_frame = cv2.add(empty_frame, noise)
-            cv2.putText(empty_frame, "MEMORY NOT FOUND IN ARCHIVE", (20, size // 2), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (150, 150, 150), 2, cv2.LINE_AA)
+            cv2.putText(empty_frame, "MEMORY NOT FOUND IN ARCHIVE", (50, size // 2), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.5, (150, 150, 150), 3, cv2.LINE_AA)
             st.session_state.generated_image = cv2.cvtColor(empty_frame, cv2.COLOR_BGR2RGB)
             st.warning("⚠️ No matching memory found in the archive tags.")
             st.stop()
@@ -221,7 +213,6 @@ if st.button("Dive Into"):
         bg_img_cv = cv2.resize(cv2.imread(bg_path), (size, size))
         fg_img_cv = cv2.resize(cv2.imread(fg_path), (size, size))
 
-        # --- הרולטה האסתטית ---
         method = random.choices([0, 1, 2], weights=[20, 20, 60], k=1)[0]
         
         if method == 0:
@@ -248,15 +239,18 @@ if st.button("Dive Into"):
             except Exception:
                 blended = cv2.addWeighted(fg_img_cv, 0.65, bg_img_cv, 0.35, 0)
 
-        shift = 4
+        # התאמת אפקט הסטת הצבעים לרזולוציה גבוהה
+        shift = 8
         blended[:, :-shift, 2] = blended[:, shift:, 2]
         blended[:, shift:, 0] = blended[:, :-shift, 0]
 
-        for i in range(0, size, 3):
-            blended[i:i+1, :] = (blended[i:i+1, :] * 0.85).astype(np.uint8)
+        # התאמת קווי הסריקה של הקלטת
+        for i in range(0, size, 4):
+            blended[i:i+2, :] = (blended[i:i+2, :] * 0.85).astype(np.uint8)
 
-        kernel_x = cv2.getGaussianKernel(size, 250)
-        kernel_y = cv2.getGaussianKernel(size, 250)
+        # התאמת העיגול השחור (Vignette) לפיקסלים החדשים
+        kernel_x = cv2.getGaussianKernel(size, 500)
+        kernel_y = cv2.getGaussianKernel(size, 500)
         kernel = kernel_y * kernel_x.T
         mask_vignette = kernel / kernel.max()
         mask_vignette = np.stack([mask_vignette]*3, axis=-1)
@@ -265,10 +259,10 @@ if st.button("Dive Into"):
         if not has_politeness:
             noise_overlay = np.random.randint(0, 120, (size, size, 3), dtype=np.uint8)
             blended = cv2.addWeighted(blended, 0.5, noise_overlay, 0.5, 0)
-            cv2.putText(blended, "ACCESS DENIED:", (70, 230), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2, cv2.LINE_AA)
-            cv2.putText(blended, "COMPASSION PROTOCOL FAILED", (30, 270), 
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.putText(blended, "ACCESS DENIED:", (140, 460), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.6, (0, 0, 255), 3, cv2.LINE_AA)
+            cv2.putText(blended, "COMPASSION PROTOCOL FAILED", (60, 540), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.4, (0, 0, 255), 3, cv2.LINE_AA)
 
         final_output = cv2.cvtColor(blended, cv2.COLOR_BGR2RGB)
         st.session_state.generated_image = final_output
@@ -277,15 +271,11 @@ if st.button("Dive Into"):
         Image.fromarray(final_output).save(buf, format="PNG")
         st.session_state.download_bytes = buf.getvalue()
 
-# מירכוז התמונה והכפתור בתצוגה בעמודה רחבה יותר (מגדיל את התמונה)
 col1, col2, col3 = st.columns([1, 6, 1])
 with col2:
     if st.session_state.generated_image is not None:
-        # פקודת use_container_width מותחת את התמונה לגודל המקסימלי של העמודה
         st.image(st.session_state.generated_image, use_container_width=True)
-        
-        st.write("") # מרווח קטן
-        
+        st.write("")
         if st.session_state.download_bytes is not None:
             st.download_button(
                 label="Save this memory",
