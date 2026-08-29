@@ -262,7 +262,7 @@ elif st.session_state.human_status == "no":
             st.rerun()
 
 # ==========================================
-# מסך 3: המנוע עצמו (עם מנוע חיפוש חכם ומשופר)
+# מסך 3: המנוע עצמו
 # ==========================================
 elif st.session_state.human_status == "yes":
     inject_image_bg(bg_base64)
@@ -281,13 +281,13 @@ elif st.session_state.human_status == "yes":
 
     # מילון נרדפים חכם להתמודדות עם מגבלות התיאורים האוטומטיים (BLIP)
     SYNONYM_MAP = {
-        "cat": ["cat", "kitten", "pet", "animal"],
-        "woman": ["woman", "mother", "mom", "female", "lady", "person"],
-        "man": ["man", "father", "dad", "male", "guy", "person"],
-        "dog": ["dog", "puppy", "pet", "animal"],
-        "house": ["house", "home", "room", "indoor", "building"],
-        "sea": ["sea", "ocean", "water", "beach", "coast"],
-        "car": ["car", "vehicle", "drive", "road"]
+        "cat": ["cat", "kitten", "pet", "animal", "feline", "jasper", "חתול"],
+        "woman": ["woman", "mother", "mom", "female", "lady", "person", "girl", "אמא", "אישה"],
+        "man": ["man", "father", "dad", "male", "guy", "person", "אבא", "גבר"],
+        "dog": ["dog", "puppy", "pet", "animal", "canine", "כלב"],
+        "house": ["house", "home", "room", "indoor", "building", "בית", "חדר"],
+        "sea": ["sea", "ocean", "water", "beach", "coast", "ים", "חוף"],
+        "car": ["car", "vehicle", "drive", "road", "רכב", "אוטו"]
     }
 
     user_prompt = st.text_input("Enter Memory", value="")
@@ -345,7 +345,6 @@ elif st.session_state.human_status == "yes":
                                 text_content = file_txt.read().lower()
                                 text_words = re.sub(r'[^\w\s]', '', text_content).split()
                                 
-                                # חישוב התאמה חכמה לפי מילים מורחבות
                                 score = sum(1 for word in expanded_words if word in text_words)
                                 if score > 0:
                                     matching_images.append((img_path, score, text_content))
@@ -386,9 +385,10 @@ elif st.session_state.human_status == "yes":
             elif method == 1:
                 fg_gray = cv2.cvtColor(fg_img_cv, cv2.COLOR_BGR2GRAY)
                 luma = (fg_gray.astype(float) / 255.0)[..., np.newaxis]
+                blended = (bg_img_cv * (1.0 - (luma * 0.55)) + fg_img_cv * (luma * 0.55)).astype(np.uint8)
             elif method == 2:
-                bg_img_pil = Image.fromarray(cv2.cvtColor(bg_img_cv, cv2.COLOR_RGB2BGR))
-                fg_img_pil = Image.fromarray(cv2.cvtColor(fg_img_cv, cv2.COLOR_RGB2BGR))
+                bg_img_pil = Image.fromarray(cv2.cvtColor(bg_img_cv, cv2.COLOR_BGR2RGB))
+                fg_img_pil = Image.fromarray(cv2.cvtColor(fg_img_cv, cv2.COLOR_BGR2RGB))
                 try:
                     fg_cutout = remove(fg_img_pil)
                     fg_np = np.array(fg_cutout)
