@@ -19,13 +19,14 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
+# עיצוב אסתטי: רקע שחור עמוק ופונט קוד טהור (Consolas / Monaco)
 st.markdown("""
 <style>
     .stApp {
         background-color: #0a0a0a;
     }
-    html, body, [class*="css"] {
-        font-family: 'Courier New', Courier, monospace;
+    html, body, [class*="css"], .stTextInput input, .stButton button {
+        font-family: Consolas, Monaco, 'Courier New', Courier, monospace !important;
         color: #d3d3d3;
     }
     h1 {
@@ -34,10 +35,24 @@ st.markdown("""
         border-bottom: 1px solid #333;
         padding-bottom: 15px;
     }
+    .stTextInput input {
+        background-color: #141414;
+        color: #ffffff;
+        border: 1px solid #333;
+    }
+    .stButton button {
+        background-color: #1c1c1c;
+        color: #ffffff;
+        border: 1px solid #444;
+    }
+    .stButton button:hover {
+        background-color: #333333;
+        border-color: #666;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# הורדה אוטומטית של הזיפ מ-Google Drive וחילוצו (מתבצע פעם אחת בעליית השרת)
+# הורדה אוטומטית של הזיפ מ-Google Drive וחילוצו
 @st.cache_resource
 def setup_archive():
     data_dir = "clean_data"
@@ -72,8 +87,13 @@ st.markdown("""
 POLITE_WORDS = ["please", "thanks", "thank you", "love"]
 STOP_WORDS = ["show", "me", "the", "a", "an", "and", "with", "in", "on", "of", "to", "is", "are"]
 
-# שורת החיפוש - עכשיו נקייה וריקה בעליית האתר
 user_prompt = st.text_input("Enter Memory", value="")
+
+# שמירת התמונה בזיכרון של Streamlit Session כדי שלא תיעלם בלחיצה על הורדה
+if "generated_image" not in st.session_state:
+    st.session_state.generated_image = None
+if "download_bytes" not in st.session_state:
+    st.session_state.download_bytes = None
 
 if st.button("Dive Into"):
     with st.spinner("Accessing Machine Memory..."):
@@ -114,7 +134,7 @@ if st.button("Dive Into"):
             empty_frame = cv2.add(empty_frame, noise)
             cv2.putText(empty_frame, "MEMORY NOT FOUND IN ARCHIVE", (20, size // 2), 
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (150, 150, 150), 2, cv2.LINE_AA)
-            st.image(cv2.cvtColor(empty_frame, cv2.COLOR_BGR2RGB))
+            st.session_state.generated_image = cv2.cvtColor(empty_frame, cv2.COLOR_BGR2RGB)
             st.warning("⚠️ No matching memory found in the archive tags.")
             st.stop()
 
@@ -129,10 +149,8 @@ if st.button("Dive Into"):
         if bg_candidates:
             bg_item = random.choice(bg_candidates)
             bg_path = bg_item[0]
-            bg_text = bg_item[2]
         else:
             bg_path = fg_path
-            bg_text = fg_text
 
         bg_img_cv = cv2.resize(cv2.imread(bg_path), (size, size))
         fg_img_cv = cv2.resize(cv2.imread(fg_path), (size, size))
@@ -141,20 +159,14 @@ if st.button("Dive Into"):
         method = random.choices([0, 1, 2], weights=[20, 20, 60], k=1)[0]
         
         if method == 0:
-            processing_name = "Direct Analog Overlap"
             blended = cv2.addWeighted(fg_img_cv, 0.65, bg_img_cv, 0.35, 0)
-            
         elif method == 1:
-            processing_name = "Luma Shadow Masking"
             fg_gray = cv2.cvtColor(fg_img_cv, cv2.COLOR_BGR2GRAY)
             luma = (fg_gray.astype(float) / 255.0)[..., np.newaxis]
             blended = (bg_img_cv * (1.0 - (luma * 0.55)) + fg_img_cv * (luma * 0.55)).astype(np.uint8)
-            
         elif method == 2:
-            processing_name = "Neural Segmentation Collage"
             bg_img_pil = Image.fromarray(cv2.cvtColor(bg_img_cv, cv2.COLOR_BGR2RGB))
             fg_img_pil = Image.fromarray(cv2.cvtColor(fg_img_cv, cv2.COLOR_BGR2RGB))
-            
             try:
                 fg_cutout = remove(fg_img_pil)
                 fg_np = np.array(fg_cutout)
@@ -167,8 +179,7 @@ if st.button("Dive Into"):
                 fg_cutout = Image.fromarray(fg_np)
                 bg_img_pil.paste(fg_cutout, (0, 0), fg_cutout)
                 blended = cv2.cvtColor(np.array(bg_img_pil), cv2.COLOR_RGB2BGR)
-            except Exception as e:
-                processing_name = "Direct Analog Overlap (Fallback)"
+            except Exception:
                 blended = cv2.addWeighted(fg_img_cv, 0.65, bg_img_cv, 0.35, 0)
 
         shift = 4
@@ -194,25 +205,21 @@ if st.button("Dive Into"):
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
 
         final_output = cv2.cvtColor(blended, cv2.COLOR_BGR2RGB)
+        st.session_state.generated_image = final_output
         
-        st.image(final_output, caption="Processed Analog Frame")
-        
-        # --- המרת התמונה לקובץ הניתן להורדה ---
+        # הכנה מראש של קובץ להורדה ושמירתו בזיכרון
         buf = io.BytesIO()
-        img_to_download = Image.fromarray(final_output)
-        img_to_download.save(buf, format="PNG")
-        byte_im = buf.getvalue()
+        Image.fromarray(final_output).save(buf, format="PNG")
+        st.session_state.download_bytes = buf.getvalue()
 
+# הצגת התמונה וכפתור ההורדה מתוך הזיכרון (כדי שלא ייעלמו בלחיצה)
+if st.session_state.generated_image is not None:
+    st.image(st.session_state.generated_image)
+    
+    if st.session_state.download_bytes is not None:
         st.download_button(
             label="Download Memory",
-            data=byte_im,
+            data=st.session_state.download_bytes,
             file_name="analog_memory.png",
             mime="image/png"
-        )        
-        
-        st.markdown(f"""
-        🧠 **Machine Memory Log:**
-        * **Processing Method:** {processing_name}
-        * **Subject Tag:** '{fg_text.strip()}'
-        * **Environment Tag:** '{bg_text.strip()}'
-        """)
+        )
