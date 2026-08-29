@@ -50,6 +50,10 @@ bg_base64 = load_base64_media(bg_image_path)
 audio_file_path = "VTS_01_2-[AudioTrimmer.com].mp3"
 audio_base64 = load_base64_media(audio_file_path)
 
+# סאונד עבור מסך השגיאה (NO)
+audio_no_path = "VTS_01_4-[AudioTrimmer.com].mp3"
+audio_no_base64 = load_base64_media(audio_no_path)
+
 # פונקציות הזרקת רקעים - מותאמות עכשיו לקבצי ה-GIF 
 def inject_gif_bg(base64_gif):
     if base64_gif:
@@ -240,6 +244,15 @@ if st.session_state.human_status == "pending":
 elif st.session_state.human_status == "no":
     inject_gif_bg(surreal_base64)
     
+    # ניגון סאונד אוטומטי נסתר למסך השגיאה
+    if audio_no_base64:
+        audio_html = f"""
+            <audio autoplay style="display:none;">
+            <source src="data:audio/mp3;base64,{audio_no_base64}" type="audio/mpeg">
+            </audio>
+            """
+        st.markdown(audio_html, unsafe_allow_html=True)
+        
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
     st.markdown("<h1 style='color: #ff3333 !important;'>ACCESS RESTRICTED</h1>", unsafe_allow_html=True)
     
