@@ -51,7 +51,7 @@ st.markdown(f"""
 audio_file_path = "VTS_01_2-[AudioTrimmer.com].mp3"
 audio_base64 = get_base64_file(audio_file_path)
 
-# עיצוב מקיף כולל כפתורים אדומים
+# עיצוב מקיף ורספונסיבי (מותאם גם למחשב וגם לפלאפון)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
@@ -65,6 +65,7 @@ st.markdown("""
         line-height: 1.6 !important;
     }
     
+    /* עיצוב כותרת למחשב (ברירת מחדל) */
     h1 {
         color: #ffffff !important;
         text-transform: uppercase;
@@ -86,7 +87,7 @@ st.markdown("""
         letter-spacing: 1px;
     }
     
-    /* עיצוב הכפתורים באדום זרחני */
+    /* עיצוב הכפתורים */
     .stButton button {
         background-color: rgba(26, 26, 26, 0.8) !important;
         color: #ff3333 !important;
@@ -105,12 +106,38 @@ st.markdown("""
         box-shadow: 0 0 10px rgba(255, 51, 51, 0.4);
     }
     
+    /* מסגרת מוניטור למחשב (ברירת מחדל) */
     [data-testid="stImage"] img {
         border: 6px solid #111 !important;
         border-radius: 15px !important;
         padding: 4px !important;
         background-color: #222 !important;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+    }
+
+    /* התאמות למסכים קטנים (פלאפונים וטאבלטים קטנים) */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 1.4rem !important; /* פונט קטן יותר */
+            white-space: normal !important; /* מאפשר שבירת שורות */
+            line-height: 1.3 !important; /* רווח נעים בין השורות */
+            padding-bottom: 10px;
+        }
+        
+        .stMarkdown div {
+            font-size: 0.9rem !important; /* הקטנת טקסט ההסבר */
+        }
+        
+        [data-testid="stImage"] img {
+            border: 3px solid #111 !important; /* מסגרת דקה יותר לפלאפון */
+            padding: 2px !important;
+            border-radius: 10px !important;
+        }
+        
+        /* הרחבת תיבת החיפוש בטלפון */
+        .stTextInput {
+            width: 100% !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
