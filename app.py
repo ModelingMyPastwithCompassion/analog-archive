@@ -23,7 +23,7 @@ h1 a, h2 a, h3 a, .st-emotion-cache-1vt4ygl {
 """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# קריאת קבצי סאונד מקומיים בלבד (סאונד שוקל מעט, אז זה בסדר)
+# קריאת קבצים מקומיים בלבד (פרטיות מלאה ללא CDN)
 @st.cache_data
 def load_base64_media(file_path):
     if os.path.exists(file_path):
@@ -32,31 +32,54 @@ def load_base64_media(file_path):
     return ""
 
 # ==========================================
-# לינקים ישירים להזרמת הוידאו מהשרת של גיטהאב 
-# (הרבה יותר מהיר ולא קורס!)
+# טעינת קבצי מדיה מראש (GIF, תמונה וסאונד)
 # ==========================================
-mixer_video_url = "https://raw.githubusercontent.com/ModelingMyPastwithCompassion/analog-archive/main/mixer.mp4"
-surreal_video_url = "https://raw.githubusercontent.com/ModelingMyPastwithCompassion/analog-archive/main/surreal.mp4"
 
-# טעינת סאונד הזיכרון 
+# קבצי ה-GIF שהעלית
+mixer_gif_path = "analogmixer.gif"
+mixer_base64 = load_base64_media(mixer_gif_path)
+
+surreal_gif_path = "surrealroom.gif"
+surreal_base64 = load_base64_media(surreal_gif_path)
+
+# תמונת הרקע למסך המנוע (מסך 3)
+bg_image_path = "Screenshot 2026-08-22 210850.png"
+bg_base64 = load_base64_media(bg_image_path)
+
+# סאונד עבור כפתור Dive Into
 audio_file_path = "VTS_01_2-[AudioTrimmer.com].mp3"
 audio_base64 = load_base64_media(audio_file_path)
 
-# פונקציה להזרקת וידאו בסטרימינג ישיר
-def inject_video_bg(video_url):
-    video_html = f"""
-    <style>
-    /* הפיכת כל השכבות של המערכת לשקופות כדי שהוידאו ייראה */
-    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{ 
-        background: transparent !important; 
-        background-color: transparent !important;
-    }}
-    </style>
-    <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; object-fit: cover; opacity: 0.4;">
-        <source src="{video_url}" type="video/mp4">
-    </video>
-    """
-    st.markdown(video_html, unsafe_allow_html=True)
+# פונקציות הזרקת רקעים - מותאמות עכשיו לקבצי ה-GIF 
+def inject_gif_bg(base64_gif):
+    if base64_gif:
+        gif_css = f'url("data:image/gif;base64,{base64_gif}")'
+        st.markdown(f"""
+        <style>
+        .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), {gif_css} !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("<style>.stApp { background: #0a0a0a !important; }</style>", unsafe_allow_html=True)
+
+def inject_image_bg(base64_img):
+    if base64_img:
+        bg_css = f'url("data:image/png;base64,{base64_img}")'
+        st.markdown(f"""
+        <style>
+        .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
+            background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), {bg_css} !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-attachment: fixed !important;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
 
 # ==========================================
 # עיצוב מקיף ורספונסיבי
@@ -182,11 +205,24 @@ if "human_status" not in st.session_state:
 # מסך 1: שער הכניסה (האם אתה אנושי?)
 # ==========================================
 if st.session_state.human_status == "pending":
-    inject_video_bg(mixer_video_url)
+    inject_gif_bg(mixer_base64)
     
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
     st.markdown("<h1>ARE YOU A HUMAN?</h1>", unsafe_allow_html=True)
     st.write("")
+    
+    audio_intro_path = "INTRO_AUDIO.mp3"
+    audio_intro_base64 = load_base64_media(audio_intro_path)
+    if audio_intro_base64:
+        intro_audio_html = f"""
+            <div style="text-align: center; max-width: 300px; margin: 0 auto; margin-bottom: 20px; position: relative; z-index: 10;">
+            <audio controls>
+            <source src="data:audio/mp3;base64,{audio_intro_base64}" type="audio/mpeg">
+            </audio>
+            </div>
+            """
+        st.markdown(intro_audio_html, unsafe_allow_html=True)
+
     st.write("")
     col1, col2, col3, col4, col5 = st.columns([1, 2, 1, 2, 1])
     with col2:
@@ -199,10 +235,10 @@ if st.session_state.human_status == "pending":
             st.rerun()
 
 # ==========================================
-# מסך 2: תשובה שלילית (וידאו רקע SURREAL)
+# מסך 2: תשובה שלילית (GIF סוריאליסטי)
 # ==========================================
 elif st.session_state.human_status == "no":
-    inject_video_bg(surreal_video_url)
+    inject_gif_bg(surreal_base64)
     
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
     st.markdown("<h1 style='color: #ff3333 !important;'>ACCESS RESTRICTED</h1>", unsafe_allow_html=True)
@@ -223,14 +259,14 @@ elif st.session_state.human_status == "no":
             st.rerun()
 
 # ==========================================
-# מסך 3: המנוע עצמו (וידאו רקע MIXER)
+# מסך 3: המנוע עצמו (תמונה סטטית)
 # ==========================================
 elif st.session_state.human_status == "yes":
-    inject_video_bg(mixer_video_url)
+    inject_image_bg(bg_base64)
     
     st.title("Modeling My Past with Compassion")
     st.markdown("""
-    <div style="text-align: center; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; position: relative; z-index: 10; border: 1px solid #333;">
+    <div style="text-align: center; position: relative; z-index: 10;">
     <em>This engine is independently produced, its data sourced from 90s VHS tapes shot by my mother or father. The cinematography credit belongs to them. Using this raw technology, designed to preserve the original aesthetic, we can touch the memories of the past. The engine is built to simulate our memory: distorting, adding or subtracting details, and scrambling the sequence of events. Is this how it really was, or is this how I want to remember it?</em><br><br>
     <strong>Please treat these materials with compassion.</strong>
     </div>
