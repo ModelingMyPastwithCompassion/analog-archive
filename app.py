@@ -20,22 +20,22 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# קריאת התמונה המקומית והמרתה לקוד
-def get_base64_image(image_path):
-    if os.path.exists(image_path):
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode()
+# קריאת קבצים מקומיים והמרתם לקוד (Base64) כדי לעקוף הגבלות של מאגר פרטי
+def get_base64_file(file_path):
+    if os.path.exists(file_path):
+        with open(file_path, "rb") as file:
+            return base64.b64encode(file.read()).decode()
     return ""
 
+# הגדרת הרקע
 bg_image_path = "Screenshot 2026-08-22 210850.png"
-bg_base64 = get_base64_image(bg_image_path)
+bg_base64 = get_base64_file(bg_image_path)
 
 if bg_base64:
     bg_css = f'url("data:image/png;base64,{bg_base64}")'
 else:
     bg_css = 'url("https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop")'
 
-# הזרקת תמונת הרקע לאתר
 st.markdown(f"""
 <style>
 .stApp {{
@@ -46,6 +46,10 @@ st.markdown(f"""
 }}
 </style>
 """, unsafe_allow_html=True)
+
+# הגדרת קובץ הסאונד
+audio_file_path = "VTS_01_2-[AudioTrimmer.com].mp3"
+audio_base64 = get_base64_file(audio_file_path)
 
 # עיצוב מקיף כולל כפתורים אדומים
 st.markdown("""
@@ -74,7 +78,7 @@ st.markdown("""
     
     .stTextInput input {
         background-color: rgba(10, 10, 10, 0.8) !important;
-        color: #39ff14 !important; /* טקסט ירוק בשורת החיפוש */
+        color: #39ff14 !important;
         border: 1px solid #444 !important;
         border-radius: 5px !important;
         padding: 10px !important;
@@ -85,7 +89,7 @@ st.markdown("""
     /* עיצוב הכפתורים באדום זרחני */
     .stButton button {
         background-color: rgba(26, 26, 26, 0.8) !important;
-        color: #ff3333 !important; /* אדום זרחני */
+        color: #ff3333 !important;
         border: 1px solid #555 !important;
         border-radius: 5px !important;
         text-transform: uppercase;
@@ -98,7 +102,7 @@ st.markdown("""
         background-color: rgba(51, 51, 51, 0.9) !important;
         border-color: #ff3333 !important;
         color: #ff3333 !important;
-        box-shadow: 0 0 10px rgba(255, 51, 51, 0.4); /* זוהר אדום */
+        box-shadow: 0 0 10px rgba(255, 51, 51, 0.4);
     }
     
     [data-testid="stImage"] img {
@@ -151,7 +155,6 @@ user_prompt = st.text_input("Enter Memory", value="")
 # יצירת עמודות למירכוז כפתור ה-Dive Into
 btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
 with btn_col2:
-    # use_container_width מותח את הכפתור בתוך העמודה האמצעית כך שהוא ממורכז וסימטרי
     dive_clicked = st.button("Dive Into", use_container_width=True)
 
 if "generated_image" not in st.session_state:
@@ -160,6 +163,15 @@ if "download_bytes" not in st.session_state:
     st.session_state.download_bytes = None
 
 if dive_clicked:
+    # נגן את הסאונד האנלוגי המקורי בעזרת HTML ו-Autoplay
+    if audio_base64:
+        audio_html = f"""
+            <audio autoplay style="display:none;">
+            <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mpeg">
+            </audio>
+            """
+        st.markdown(audio_html, unsafe_allow_html=True)
+
     with st.spinner("Accessing Machine Memory..."):
         from rembg import remove
         
@@ -281,7 +293,6 @@ with col2:
         st.write("")
         
         if st.session_state.download_bytes is not None:
-            # הוספת עוד רמת עמודות פנימית כדי למרכז את כפתור ההורדה ביחס לתמונה
             dl_col1, dl_col2, dl_col3 = st.columns([1, 1, 1])
             with dl_col2:
                 st.download_button(
