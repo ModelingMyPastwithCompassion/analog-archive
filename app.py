@@ -8,6 +8,7 @@ from PIL import Image
 import streamlit as st
 import gdown
 import io
+import base64
 
 # העלמת התפריטים המובנים של פלטפורמת Streamlit למראה נקי
 hide_st_style = """
@@ -19,7 +20,35 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# עיצוב מקיף: Ubuntu, רקע מהמאגר שלך בגיטהאב, מסוף ירוק, מוניטור, וכותרת בשורה אחת
+# קריאת התמונה המקומית (שהעלית לגיטהאב) והמרתה לקוד כדי לעקוף חסימות של מאגר פרטי
+def get_base64_image(image_path):
+    if os.path.exists(image_path):
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    return ""
+
+bg_image_path = "Screenshot 2026-08-22 210850.png"
+bg_base64 = get_base64_image(bg_image_path)
+
+if bg_base64:
+    bg_css = f'url("data:image/png;base64,{bg_base64}")'
+else:
+    # תמונת גיבוי במקרה שהקובץ לא נמצא
+    bg_css = 'url("https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop")'
+
+# הזרקת תמונת הרקע לאתר
+st.markdown(f"""
+<style>
+.stApp {{
+    background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), {bg_css} !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: fixed !important;
+}}
+</style>
+""", unsafe_allow_html=True)
+
+# עיצוב מקיף: Ubuntu, מסוף ירוק, מוניטור, וכותרת בשורה אחת
 st.markdown("""
 <style>
     /* ייבוא פונט Ubuntu */
@@ -27,14 +56,6 @@ st.markdown("""
     
     * {
         font-family: 'Ubuntu', sans-serif !important;
-    }
-    
-    /* תמונת רקע - קישור ישיר לתמונה שהעלית לגיטהאב */
-    .stApp {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url("https://raw.githubusercontent.com/ModelingMyPastwithCompassion/analog-archive/main/Screenshot%202026-08-22%20210850.png") !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-attachment: fixed !important;
     }
     
     p, span, label, li, em, strong {
