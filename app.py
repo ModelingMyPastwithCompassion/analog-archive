@@ -218,7 +218,7 @@ if st.session_state.generated_image is not None:
     
     if st.session_state.download_bytes is not None:
         st.download_button(
-            label="Download Memory",
+            label="Save this memory",
             data=st.session_state.download_bytes,
             file_name="analog_memory.png",
             mime="image/png"
