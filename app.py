@@ -23,7 +23,7 @@ h1 a, h2 a, h3 a, .st-emotion-cache-1vt4ygl {
 """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# קריאת קבצים (שינינו את שם הפונקציה כדי לאפס את זיכרון המטמון של השרת)
+# קריאת קבצי סאונד מקומיים בלבד (סאונד שוקל מעט, אז זה בסדר)
 @st.cache_data
 def load_base64_media(file_path):
     if os.path.exists(file_path):
@@ -32,35 +32,31 @@ def load_base64_media(file_path):
     return ""
 
 # ==========================================
-# טעינת קבצי מדיה מראש (שמות נקיים!)
+# לינקים ישירים להזרמת הוידאו מהשרת של גיטהאב 
+# (הרבה יותר מהיר ולא קורס!)
 # ==========================================
+mixer_video_url = "https://raw.githubusercontent.com/ModelingMyPastwithCompassion/analog-archive/main/mixer.mp4"
+surreal_video_url = "https://raw.githubusercontent.com/ModelingMyPastwithCompassion/analog-archive/main/surreal.mp4"
 
-# וידאו רקע 1: מסך הפתיחה והמנוע
-mixer_video_path = "mixer.mp4"
-mixer_base64 = load_base64_media(mixer_video_path)
-
-# וידאו רקע 2: מסך השגיאה (NO)
-surreal_video_path = "surreal.mp4"
-surreal_base64 = load_base64_media(surreal_video_path)
-
-# סאונד עבור כפתור Dive Into
+# טעינת סאונד הזיכרון 
 audio_file_path = "VTS_01_2-[AudioTrimmer.com].mp3"
 audio_base64 = load_base64_media(audio_file_path)
 
-# פונקציית עזר להזרקת רקע וידאו
-def inject_video_bg(base64_video):
-    if base64_video:
-        video_html = f"""
-        <style>
-        .stApp {{ background: transparent !important; }}
-        </style>
-        <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; object-fit: cover; opacity: 0.5;">
-            <source src="data:video/mp4;base64,{base64_video}" type="video/mp4">
-        </video>
-        """
-        st.markdown(video_html, unsafe_allow_html=True)
-    else:
-        st.markdown("<style>.stApp { background: #0a0a0a !important; }</style>", unsafe_allow_html=True)
+# פונקציה להזרקת וידאו בסטרימינג ישיר
+def inject_video_bg(video_url):
+    video_html = f"""
+    <style>
+    /* הפיכת כל השכבות של המערכת לשקופות כדי שהוידאו ייראה */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{ 
+        background: transparent !important; 
+        background-color: transparent !important;
+    }}
+    </style>
+    <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; object-fit: cover; opacity: 0.4;">
+        <source src="{video_url}" type="video/mp4">
+    </video>
+    """
+    st.markdown(video_html, unsafe_allow_html=True)
 
 # ==========================================
 # עיצוב מקיף ורספונסיבי
@@ -89,7 +85,7 @@ st.markdown("""
         white-space: nowrap !important;
         position: relative;
         z-index: 10;
-        text-shadow: 2px 2px 15px rgba(0,0,0,0.9);
+        text-shadow: 2px 2px 15px rgba(0,0,0,1);
     }
     
     .stTextInput input {
@@ -186,7 +182,7 @@ if "human_status" not in st.session_state:
 # מסך 1: שער הכניסה (האם אתה אנושי?)
 # ==========================================
 if st.session_state.human_status == "pending":
-    inject_video_bg(mixer_base64)
+    inject_video_bg(mixer_video_url)
     
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
     st.markdown("<h1>ARE YOU A HUMAN?</h1>", unsafe_allow_html=True)
@@ -206,7 +202,7 @@ if st.session_state.human_status == "pending":
 # מסך 2: תשובה שלילית (וידאו רקע SURREAL)
 # ==========================================
 elif st.session_state.human_status == "no":
-    inject_video_bg(surreal_base64)
+    inject_video_bg(surreal_video_url)
     
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
     st.markdown("<h1 style='color: #ff3333 !important;'>ACCESS RESTRICTED</h1>", unsafe_allow_html=True)
@@ -230,7 +226,7 @@ elif st.session_state.human_status == "no":
 # מסך 3: המנוע עצמו (וידאו רקע MIXER)
 # ==========================================
 elif st.session_state.human_status == "yes":
-    inject_video_bg(mixer_base64)
+    inject_video_bg(mixer_video_url)
     
     st.title("Modeling My Past with Compassion")
     st.markdown("""
