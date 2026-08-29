@@ -19,7 +19,7 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# עיצוב מקיף: Ubuntu, רקע מגוגל דרייב, מסוף ירוק, מוניטור, וכותרת בשורה אחת
+# עיצוב מקיף: Ubuntu, רקע מהמאגר שלך בגיטהאב, מסוף ירוק, מוניטור, וכותרת בשורה אחת
 st.markdown("""
 <style>
     /* ייבוא פונט Ubuntu */
@@ -29,9 +29,9 @@ st.markdown("""
         font-family: 'Ubuntu', sans-serif !important;
     }
     
-    /* תמונת רקע - הומר לקישור ישיר מגוגל דרייב */
+    /* תמונת רקע - קישור ישיר לתמונה שהעלית לגיטהאב */
     .stApp {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url("https://drive.google.com/uc?export=view&id=1S3agG01lwox1Tg8mzfZ89LfaubtbdjdD") !important;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url("https://raw.githubusercontent.com/ModelingMyPastwithCompassion/analog-archive/main/Screenshot%202026-08-22%20210850.png") !important;
         background-size: cover !important;
         background-position: center !important;
         background-attachment: fixed !important;
