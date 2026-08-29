@@ -23,7 +23,8 @@ h1 a, h2 a, h3 a, .st-emotion-cache-1vt4ygl {
 """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# קריאת קבצים מקומיים והמרתם לקוד (Base64)
+# קריאת קבצים מקומיים והמרתם לקוד (Base64) - תוך שימוש ב-Cache כדי למנוע מסך שחור ואיטיות
+@st.cache_data
 def get_base64_file(file_path):
     if os.path.exists(file_path):
         with open(file_path, "rb") as file:
@@ -31,29 +32,35 @@ def get_base64_file(file_path):
     return ""
 
 # ==========================================
-# טעינת קבצי מדיה מראש
+# טעינת קבצי מדיה מראש 
 # ==========================================
 
-# רקע התמונה הקבוע (למסך הפתיחה ולמנוע)
-bg_image_path = "Screenshot 2026-08-22 210850.png"
-bg_base64 = get_base64_file(bg_image_path)
+# וידאו רקע 1: מסך הפתיחה והמנוע
+mixer_video_path = "analog_mixer(1).mp4"
+mixer_base64 = get_base64_file(mixer_video_path)
 
-if bg_base64:
-    bg_css = f'url("data:image/png;base64,{bg_base64}")'
-else:
-    bg_css = 'url("https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop")'
-
-# רקע הוידאו למסך ה-NO
-video_bg_path = "surreal_room (2).mp4"
-video_base64 = get_base64_file(video_bg_path)
+# וידאו רקע 2: מסך השגיאה (NO)
+surreal_video_path = "surreal_room(2).mp4"
+surreal_base64 = get_base64_file(surreal_video_path)
 
 # סאונד עבור כפתור Dive Into
 audio_file_path = "VTS_01_2-[AudioTrimmer.com].mp3"
 audio_base64 = get_base64_file(audio_file_path)
 
-# סאונד פתיחה (יוצג כנגן שמע) - החלף לשם הקובץ שתעלה!
-audio_intro_path = "INTRO_AUDIO.mp3"
-audio_intro_base64 = get_base64_file(audio_intro_path)
+# פונקציית עזר להזרקת רקע וידאו
+def inject_video_bg(base64_video):
+    if base64_video:
+        video_html = f"""
+        <style>
+        .stApp {{ background: transparent !important; }}
+        </style>
+        <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; object-fit: cover; opacity: 0.6;">
+            <source src="data:video/mp4;base64,{base64_video}" type="video/mp4">
+        </video>
+        """
+        st.markdown(video_html, unsafe_allow_html=True)
+    else:
+        st.markdown("<style>.stApp { background: #0a0a0a !important; }</style>", unsafe_allow_html=True)
 
 # ==========================================
 # עיצוב מקיף ורספונסיבי
@@ -82,6 +89,7 @@ st.markdown("""
         white-space: nowrap !important;
         position: relative;
         z-index: 10;
+        text-shadow: 2px 2px 15px rgba(0,0,0,0.9);
     }
     
     .stTextInput input {
@@ -120,14 +128,6 @@ st.markdown("""
         padding: 4px !important;
         background-color: #222 !important;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
-    }
-    
-    /* עיצוב נגן האודיו במסך הפתיחה */
-    audio {
-        border-radius: 5px !important;
-        width: 100% !important;
-        height: 35px !important;
-        outline: none !important;
     }
 
     @media (max-width: 768px) {
@@ -186,34 +186,12 @@ if "human_status" not in st.session_state:
 # מסך 1: שער הכניסה (האם אתה אנושי?)
 # ==========================================
 if st.session_state.human_status == "pending":
-    # החלת רקע התמונה
-    st.markdown(f"""
-    <style>
-    .stApp {{
-        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), {bg_css} !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-attachment: fixed !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
+    # הפעלת וידאו הרקע של ה-Mixer
+    inject_video_bg(mixer_base64)
+    
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
     st.markdown("<h1>ARE YOU A HUMAN?</h1>", unsafe_allow_html=True)
     st.write("")
-    
-    # נגן אודיו שקט למסך הפתיחה 
-    if audio_intro_base64:
-        intro_audio_html = f"""
-            <div style="text-align: center; max-width: 300px; margin: 0 auto; margin-bottom: 20px;">
-            <audio controls>
-            <source src="data:audio/mp3;base64,{audio_intro_base64}" type="audio/mpeg">
-            Your browser does not support the audio element.
-            </audio>
-            </div>
-            """
-        st.markdown(intro_audio_html, unsafe_allow_html=True)
-    
     st.write("")
     col1, col2, col3, col4, col5 = st.columns([1, 2, 1, 2, 1])
     with col2:
@@ -226,30 +204,17 @@ if st.session_state.human_status == "pending":
             st.rerun()
 
 # ==========================================
-# מסך 2: תשובה שלילית (וידאו רקע)
+# מסך 2: תשובה שלילית (וידאו רקע SURREAL)
 # ==========================================
 elif st.session_state.human_status == "no":
+    # הפעלת וידאו הרקע הסוריאליסטי
+    inject_video_bg(surreal_base64)
     
-    # הזרקת הוידאו כרקע מלא לכל המסך
-    if video_base64:
-        video_html = f"""
-        <style>
-        .stApp {{ background: black !important; }}
-        </style>
-        <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; object-fit: cover; opacity: 0.6;">
-            <source src="data:video/mp4;base64,{video_base64}" type="video/mp4">
-        </video>
-        """
-        st.markdown(video_html, unsafe_allow_html=True)
-    else:
-        # גיבוי רקע שחור למקרה שהוידאו לא נטען
-        st.markdown("<style>.stApp { background: black !important; }</style>", unsafe_allow_html=True)
-
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
-    st.markdown("<h1 style='color: #ff3333 !important; text-shadow: 2px 2px 10px black;'>ACCESS RESTRICTED</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color: #ff3333 !important;'>ACCESS RESTRICTED</h1>", unsafe_allow_html=True)
     
     st.markdown("""
-    <div style="text-align: center; position: relative; z-index: 10; text-shadow: 1px 1px 5px black;">
+    <div style="text-align: center; position: relative; z-index: 10; text-shadow: 2px 2px 10px black;">
     <strong>Come back anytime</strong><br>
     <em>when you feel more human.</em>
     </div>
@@ -264,25 +229,15 @@ elif st.session_state.human_status == "no":
             st.rerun()
 
 # ==========================================
-# מסך 3: המנוע עצמו (תשובה חיובית)
+# מסך 3: המנוע עצמו (תשובה חיובית, וידאו רקע MIXER)
 # ==========================================
 elif st.session_state.human_status == "yes":
-    
-    # החזרת רקע התמונה
-    st.markdown(f"""
-    <style>
-    .stApp {{
-        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), {bg_css} !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-attachment: fixed !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
+    # הפעלת וידאו הרקע של ה-Mixer שוב
+    inject_video_bg(mixer_base64)
     
     st.title("Modeling My Past with Compassion")
     st.markdown("""
-    <div style="text-align: center;">
+    <div style="text-align: center; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; position: relative; z-index: 10;">
     <em>This engine is independently produced, its data sourced from 90s VHS tapes shot by my mother or father. The cinematography credit belongs to them. Using this raw technology, designed to preserve the original aesthetic, we can touch the memories of the past. The engine is built to simulate our memory: distorting, adding or subtracting details, and scrambling the sequence of events. Is this how it really was, or is this how I want to remember it?</em><br><br>
     <strong>Please treat these materials with compassion.</strong>
     </div>
