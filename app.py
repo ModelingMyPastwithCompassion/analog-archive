@@ -279,7 +279,6 @@ elif st.session_state.human_status == "yes":
     POLITE_WORDS = ["please", "thanks", "thank you", "love"]
     STOP_WORDS = ["show", "me", "the", "a", "an", "and", "with", "in", "on", "of", "to", "is", "are"]
 
-    # מילון נרדפים חכם להתמודדות עם מגבלות התיאורים האוטומטיים (BLIP)
     SYNONYM_MAP = {
         "cat": ["cat", "kitten", "pet", "animal", "feline", "jasper", "חתול"],
         "woman": ["woman", "mother", "mom", "female", "lady", "person", "girl", "אמא", "אישה"],
@@ -294,7 +293,7 @@ elif st.session_state.human_status == "yes":
 
     btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
     with btn_col2:
-        dive_clicked = st.button("Dive Into", use_container_width=True)
+        dive_clicked = st.button("Dive In", use_container_width=True)
 
     if "generated_image" not in st.session_state:
         st.session_state.generated_image = None
@@ -327,7 +326,6 @@ elif st.session_state.human_status == "yes":
             
             base_words = [w for w in clean_prompt.split() if w not in STOP_WORDS and len(w) > 1]
             
-            # הרחבת מילות החיפוש דרך מילון הנרדפים החכם שלנו
             expanded_words = set(base_words)
             for word in base_words:
                 for key, synonyms in SYNONYM_MAP.items():
