@@ -10,13 +10,22 @@ import gdown
 import io
 import base64
 
-# העלמת התפריטים המובנים והסתרת קישורי הכותרות
+# העלמת התפריטים המובנים, הקישורים והאייקונים הקופצים בפינה (Manage App)
 hide_st_style = """
 <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
 h1 a, h2 a, h3 a, .st-emotion-cache-1vt4ygl {
+    display: none !important;
+}
+/* העלמת האייקונים הצפים בפינה הימנית למטה */
+[data-testid="stStatusWidget"],
+[data-testid="ManageAppBadge"],
+.viewerBadge_container__1QSob,
+.styles_viewerBadge__1yB5_,
+.viewerBadge_link__1S137,
+.viewerBadge_text__1JaDK {
     display: none !important;
 }
 </style>
