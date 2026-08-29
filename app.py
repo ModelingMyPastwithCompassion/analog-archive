@@ -10,22 +10,13 @@ import gdown
 import io
 import base64
 
-# העלמת התפריטים המובנים, הקישורים והאייקונים הקופצים בפינה (Manage App)
+# העלמת התפריטים המובנים והסתרת קישורי הכותרות
 hide_st_style = """
 <style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
 h1 a, h2 a, h3 a, .st-emotion-cache-1vt4ygl {
-    display: none !important;
-}
-/* העלמת האייקונים הצפים בפינה הימנית למטה */
-[data-testid="stStatusWidget"],
-[data-testid="ManageAppBadge"],
-.viewerBadge_container__1QSob,
-.styles_viewerBadge__1yB5_,
-.viewerBadge_link__1S137,
-.viewerBadge_text__1JaDK {
     display: none !important;
 }
 </style>
@@ -44,26 +35,21 @@ def load_base64_media(file_path):
 # טעינת קבצי מדיה מראש (GIF, תמונה וסאונד)
 # ==========================================
 
-# קבצי ה-GIF שהעלית
 mixer_gif_path = "analogmixer.gif"
 mixer_base64 = load_base64_media(mixer_gif_path)
 
 surreal_gif_path = "surrealroom.gif"
 surreal_base64 = load_base64_media(surreal_gif_path)
 
-# תמונת הרקע למסך המנוע (מסך 3)
 bg_image_path = "Screenshot 2026-08-22 210850.png"
 bg_base64 = load_base64_media(bg_image_path)
 
-# סאונד עבור כפתור Dive Into
 audio_file_path = "VTS_01_2-[AudioTrimmer.com].mp3"
 audio_base64 = load_base64_media(audio_file_path)
 
-# סאונד עבור מסך השגיאה (NO)
 audio_no_path = "VTS_01_4-[AudioTrimmer.com].mp3"
 audio_no_base64 = load_base64_media(audio_no_path)
 
-# פונקציות הזרקת רקעים - מותאמות עכשיו לקבצי ה-GIF 
 def inject_gif_bg(base64_gif):
     if base64_gif:
         gif_css = f'url("data:image/gif;base64,{base64_gif}")'
@@ -94,9 +80,6 @@ def inject_image_bg(base64_img):
         </style>
         """, unsafe_allow_html=True)
 
-# ==========================================
-# עיצוב מקיף ורספונסיבי
-# ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
@@ -210,12 +193,11 @@ def setup_archive():
 
 data_dir = setup_archive()
 
-# ניהול מצבי מסך
 if "human_status" not in st.session_state:
     st.session_state.human_status = "pending"
 
 # ==========================================
-# מסך 1: שער הכניסה (האם אתה אנושי?)
+# מסך 1: שער הכניסה
 # ==========================================
 if st.session_state.human_status == "pending":
     inject_gif_bg(mixer_base64)
@@ -248,12 +230,11 @@ if st.session_state.human_status == "pending":
             st.rerun()
 
 # ==========================================
-# מסך 2: תשובה שלילית (GIF סוריאליסטי)
+# מסך 2: תשובה שלילית (NO)
 # ==========================================
 elif st.session_state.human_status == "no":
     inject_gif_bg(surreal_base64)
     
-    # ניגון סאונד אוטומטי נסתר למסך השגיאה
     if audio_no_base64:
         audio_html = f"""
             <audio autoplay style="display:none;">
@@ -281,7 +262,7 @@ elif st.session_state.human_status == "no":
             st.rerun()
 
 # ==========================================
-# מסך 3: המנוע עצמו (תמונה סטטית)
+# מסך 3: המנוע עצמו (עם מנוע חיפוש חכם ומשופר)
 # ==========================================
 elif st.session_state.human_status == "yes":
     inject_image_bg(bg_base64)
@@ -297,6 +278,17 @@ elif st.session_state.human_status == "yes":
 
     POLITE_WORDS = ["please", "thanks", "thank you", "love"]
     STOP_WORDS = ["show", "me", "the", "a", "an", "and", "with", "in", "on", "of", "to", "is", "are"]
+
+    # מילון נרדפים חכם להתמודדות עם מגבלות התיאורים האוטומטיים (BLIP)
+    SYNONYM_MAP = {
+        "cat": ["cat", "kitten", "pet", "animal"],
+        "woman": ["woman", "mother", "mom", "female", "lady", "person"],
+        "man": ["man", "father", "dad", "male", "guy", "person"],
+        "dog": ["dog", "puppy", "pet", "animal"],
+        "house": ["house", "home", "room", "indoor", "building"],
+        "sea": ["sea", "ocean", "water", "beach", "coast"],
+        "car": ["car", "vehicle", "drive", "road"]
+    }
 
     user_prompt = st.text_input("Enter Memory", value="")
 
@@ -332,7 +324,15 @@ elif st.session_state.human_status == "yes":
             for pw in POLITE_WORDS:
                 clean_prompt = clean_prompt.replace(pw, "")
             clean_prompt = re.sub(r'[^\w\s]', '', clean_prompt)
-            prompt_words = [w for w in clean_prompt.split() if w not in STOP_WORDS and len(w) > 2]
+            
+            base_words = [w for w in clean_prompt.split() if w not in STOP_WORDS and len(w) > 1]
+            
+            # הרחבת מילות החיפוש דרך מילון הנרדפים החכם שלנו
+            expanded_words = set(base_words)
+            for word in base_words:
+                for key, synonyms in SYNONYM_MAP.items():
+                    if word == key or word in synonyms:
+                        expanded_words.update(synonyms)
             
             matching_images = []
             for root, dirs, files in os.walk(data_dir):
@@ -344,7 +344,9 @@ elif st.session_state.human_status == "yes":
                             with open(txt_path, "r", encoding="utf-8") as file_txt:
                                 text_content = file_txt.read().lower()
                                 text_words = re.sub(r'[^\w\s]', '', text_content).split()
-                                score = sum(1 for word in prompt_words if word in text_words)
+                                
+                                # חישוב התאמה חכמה לפי מילים מורחבות
+                                score = sum(1 for word in expanded_words if word in text_words)
                                 if score > 0:
                                     matching_images.append((img_path, score, text_content))
 
@@ -384,10 +386,9 @@ elif st.session_state.human_status == "yes":
             elif method == 1:
                 fg_gray = cv2.cvtColor(fg_img_cv, cv2.COLOR_BGR2GRAY)
                 luma = (fg_gray.astype(float) / 255.0)[..., np.newaxis]
-                blended = (bg_img_cv * (1.0 - (luma * 0.55)) + fg_img_cv * (luma * 0.55)).astype(np.uint8)
             elif method == 2:
-                bg_img_pil = Image.fromarray(cv2.cvtColor(bg_img_cv, cv2.COLOR_BGR2RGB))
-                fg_img_pil = Image.fromarray(cv2.cvtColor(fg_img_cv, cv2.COLOR_BGR2RGB))
+                bg_img_pil = Image.fromarray(cv2.cvtColor(bg_img_cv, cv2.COLOR_RGB2BGR))
+                fg_img_pil = Image.fromarray(cv2.cvtColor(fg_img_cv, cv2.COLOR_RGB2BGR))
                 try:
                     fg_cutout = remove(fg_img_pil)
                     fg_np = np.array(fg_cutout)
