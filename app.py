@@ -23,29 +23,29 @@ h1 a, h2 a, h3 a, .st-emotion-cache-1vt4ygl {
 """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# קריאת קבצים מקומיים והמרתם לקוד (Base64) - תוך שימוש ב-Cache כדי למנוע מסך שחור ואיטיות
+# קריאת קבצים (שינינו את שם הפונקציה כדי לאפס את זיכרון המטמון של השרת)
 @st.cache_data
-def get_base64_file(file_path):
+def load_base64_media(file_path):
     if os.path.exists(file_path):
         with open(file_path, "rb") as file:
             return base64.b64encode(file.read()).decode()
     return ""
 
 # ==========================================
-# טעינת קבצי מדיה מראש 
+# טעינת קבצי מדיה מראש (שמות נקיים!)
 # ==========================================
 
 # וידאו רקע 1: מסך הפתיחה והמנוע
-mixer_video_path = "analog_mixer(1).mp4"
-mixer_base64 = get_base64_file(mixer_video_path)
+mixer_video_path = "mixer.mp4"
+mixer_base64 = load_base64_media(mixer_video_path)
 
 # וידאו רקע 2: מסך השגיאה (NO)
-surreal_video_path = "surreal_room(2).mp4"
-surreal_base64 = get_base64_file(surreal_video_path)
+surreal_video_path = "surreal.mp4"
+surreal_base64 = load_base64_media(surreal_video_path)
 
 # סאונד עבור כפתור Dive Into
 audio_file_path = "VTS_01_2-[AudioTrimmer.com].mp3"
-audio_base64 = get_base64_file(audio_file_path)
+audio_base64 = load_base64_media(audio_file_path)
 
 # פונקציית עזר להזרקת רקע וידאו
 def inject_video_bg(base64_video):
@@ -54,7 +54,7 @@ def inject_video_bg(base64_video):
         <style>
         .stApp {{ background: transparent !important; }}
         </style>
-        <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; object-fit: cover; opacity: 0.6;">
+        <video autoplay loop muted playsinline style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; object-fit: cover; opacity: 0.5;">
             <source src="data:video/mp4;base64,{base64_video}" type="video/mp4">
         </video>
         """
@@ -178,7 +178,7 @@ def setup_archive():
 
 data_dir = setup_archive()
 
-# ניהול מצבי מסך בעזרת Session State
+# ניהול מצבי מסך
 if "human_status" not in st.session_state:
     st.session_state.human_status = "pending"
 
@@ -186,7 +186,6 @@ if "human_status" not in st.session_state:
 # מסך 1: שער הכניסה (האם אתה אנושי?)
 # ==========================================
 if st.session_state.human_status == "pending":
-    # הפעלת וידאו הרקע של ה-Mixer
     inject_video_bg(mixer_base64)
     
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
@@ -207,7 +206,6 @@ if st.session_state.human_status == "pending":
 # מסך 2: תשובה שלילית (וידאו רקע SURREAL)
 # ==========================================
 elif st.session_state.human_status == "no":
-    # הפעלת וידאו הרקע הסוריאליסטי
     inject_video_bg(surreal_base64)
     
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
@@ -229,15 +227,14 @@ elif st.session_state.human_status == "no":
             st.rerun()
 
 # ==========================================
-# מסך 3: המנוע עצמו (תשובה חיובית, וידאו רקע MIXER)
+# מסך 3: המנוע עצמו (וידאו רקע MIXER)
 # ==========================================
 elif st.session_state.human_status == "yes":
-    # הפעלת וידאו הרקע של ה-Mixer שוב
     inject_video_bg(mixer_base64)
     
     st.title("Modeling My Past with Compassion")
     st.markdown("""
-    <div style="text-align: center; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; position: relative; z-index: 10;">
+    <div style="text-align: center; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 10px; position: relative; z-index: 10; border: 1px solid #333;">
     <em>This engine is independently produced, its data sourced from 90s VHS tapes shot by my mother or father. The cinematography credit belongs to them. Using this raw technology, designed to preserve the original aesthetic, we can touch the memories of the past. The engine is built to simulate our memory: distorting, adding or subtracting details, and scrambling the sequence of events. Is this how it really was, or is this how I want to remember it?</em><br><br>
     <strong>Please treat these materials with compassion.</strong>
     </div>
