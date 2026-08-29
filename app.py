@@ -19,7 +19,7 @@ hide_st_style = """
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
-# עיצוב מקיף: Ubuntu, רקע, מסוף ירוק, ומוניטור
+# עיצוב מקיף: Ubuntu, רקע מגוגל דרייב, מסוף ירוק, מוניטור, וכותרת בשורה אחת
 st.markdown("""
 <style>
     /* ייבוא פונט Ubuntu */
@@ -29,9 +29,9 @@ st.markdown("""
         font-family: 'Ubuntu', sans-serif !important;
     }
     
-    /* תמונת רקע עם פילטר השחרה */
+    /* תמונת רקע - הומר לקישור ישיר מגוגל דרייב */
     .stApp {
-        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url("https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop") !important;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url("https://drive.google.com/uc?export=view&id=1S3agG01lwox1Tg8mzfZ89LfaubtbdjdD") !important;
         background-size: cover !important;
         background-position: center !important;
         background-attachment: fixed !important;
@@ -42,7 +42,7 @@ st.markdown("""
         line-height: 1.6 !important;
     }
     
-    /* עיצוב הכותרת הראשית - ממורכזת ובשורה אחת */
+    /* עיצוב הכותרת הראשית - ממורכזת, מוקטנת ובשורה אחת */
     h1 {
         color: #ffffff !important;
         text-transform: uppercase;
@@ -50,6 +50,8 @@ st.markdown("""
         text-align: center !important;
         border-bottom: none !important;
         padding-bottom: 20px;
+        font-size: 2.2rem !important; /* הקטנת הגופן */
+        white-space: nowrap !important; /* כפיית שורה אחת */
     }
     
     /* תיבת הטקסט (הקלט) - חצי שקופה עם טקסט ירוק פלואורסצנטי */
@@ -254,11 +256,12 @@ if st.button("Dive Into"):
         Image.fromarray(final_output).save(buf, format="PNG")
         st.session_state.download_bytes = buf.getvalue()
 
-# מירכוז התמונה והכפתור בתצוגה
-col1, col2, col3 = st.columns([1, 2, 1])
+# מירכוז התמונה והכפתור בתצוגה בעמודה רחבה יותר (מגדיל את התמונה)
+col1, col2, col3 = st.columns([1, 6, 1])
 with col2:
     if st.session_state.generated_image is not None:
-        st.image(st.session_state.generated_image)
+        # פקודת use_container_width מותחת את התמונה לגודל המקסימלי של העמודה
+        st.image(st.session_state.generated_image, use_container_width=True)
         
         st.write("") # מרווח קטן
         
