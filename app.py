@@ -47,7 +47,7 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# עיצוב מקיף
+# עיצוב מקיף כולל כפתורים אדומים
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;700&display=swap');
@@ -74,7 +74,7 @@ st.markdown("""
     
     .stTextInput input {
         background-color: rgba(10, 10, 10, 0.8) !important;
-        color: #39ff14 !important;
+        color: #39ff14 !important; /* טקסט ירוק בשורת החיפוש */
         border: 1px solid #444 !important;
         border-radius: 5px !important;
         padding: 10px !important;
@@ -82,22 +82,23 @@ st.markdown("""
         letter-spacing: 1px;
     }
     
+    /* עיצוב הכפתורים באדום זרחני */
     .stButton button {
         background-color: rgba(26, 26, 26, 0.8) !important;
-        color: #ffffff !important;
+        color: #ff3333 !important; /* אדום זרחני */
         border: 1px solid #555 !important;
         border-radius: 5px !important;
         text-transform: uppercase;
         letter-spacing: 1px;
+        font-weight: bold !important;
         transition: all 0.3s ease;
-        display: block;
-        margin: 0 auto;
     }
     
     .stButton button:hover {
         background-color: rgba(51, 51, 51, 0.9) !important;
-        border-color: #39ff14 !important;
-        color: #39ff14 !important;
+        border-color: #ff3333 !important;
+        color: #ff3333 !important;
+        box-shadow: 0 0 10px rgba(255, 51, 51, 0.4); /* זוהר אדום */
     }
     
     [data-testid="stImage"] img {
@@ -147,12 +148,18 @@ STOP_WORDS = ["show", "me", "the", "a", "an", "and", "with", "in", "on", "of", "
 
 user_prompt = st.text_input("Enter Memory", value="")
 
+# יצירת עמודות למירכוז כפתור ה-Dive Into
+btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 1])
+with btn_col2:
+    # use_container_width מותח את הכפתור בתוך העמודה האמצעית כך שהוא ממורכז וסימטרי
+    dive_clicked = st.button("Dive Into", use_container_width=True)
+
 if "generated_image" not in st.session_state:
     st.session_state.generated_image = None
 if "download_bytes" not in st.session_state:
     st.session_state.download_bytes = None
 
-if st.button("Dive Into"):
+if dive_clicked:
     with st.spinner("Accessing Machine Memory..."):
         from rembg import remove
         
@@ -183,7 +190,6 @@ if st.button("Dive Into"):
                             if score > 0:
                                 matching_images.append((img_path, score, text_content))
 
-        # הגדלת הרזולוציה ל-1024
         size = 1024
 
         if not matching_images:
@@ -239,16 +245,13 @@ if st.button("Dive Into"):
             except Exception:
                 blended = cv2.addWeighted(fg_img_cv, 0.65, bg_img_cv, 0.35, 0)
 
-        # התאמת אפקט הסטת הצבעים לרזולוציה גבוהה
         shift = 8
         blended[:, :-shift, 2] = blended[:, shift:, 2]
         blended[:, shift:, 0] = blended[:, :-shift, 0]
 
-        # התאמת קווי הסריקה של הקלטת
         for i in range(0, size, 4):
             blended[i:i+2, :] = (blended[i:i+2, :] * 0.85).astype(np.uint8)
 
-        # התאמת העיגול השחור (Vignette) לפיקסלים החדשים
         kernel_x = cv2.getGaussianKernel(size, 500)
         kernel_y = cv2.getGaussianKernel(size, 500)
         kernel = kernel_y * kernel_x.T
@@ -276,10 +279,15 @@ with col2:
     if st.session_state.generated_image is not None:
         st.image(st.session_state.generated_image, use_container_width=True)
         st.write("")
+        
         if st.session_state.download_bytes is not None:
-            st.download_button(
-                label="Save this memory",
-                data=st.session_state.download_bytes,
-                file_name="analog_memory.png",
-                mime="image/png"
-            )
+            # הוספת עוד רמת עמודות פנימית כדי למרכז את כפתור ההורדה ביחס לתמונה
+            dl_col1, dl_col2, dl_col3 = st.columns([1, 1, 1])
+            with dl_col2:
+                st.download_button(
+                    label="Save this memory",
+                    data=st.session_state.download_bytes,
+                    file_name="analog_memory.png",
+                    mime="image/png",
+                    use_container_width=True
+                )
