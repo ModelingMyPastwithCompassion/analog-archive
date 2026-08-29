@@ -16,6 +16,17 @@ hide_st_style = """
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
+            hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            /* העלמת סמל הקישור שמופיע ליד כותרות */
+            h1 a, h2 a, h3 a, .st-emotion-cache-1vt4ygl {
+                display: none !important;
+            }
+            </style>
+            """
             </style>
             """
 st.markdown(hide_st_style, unsafe_allow_html=True)
