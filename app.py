@@ -273,17 +273,17 @@ elif st.session_state.human_status == "about":
     st.markdown("""
     <div style="background-color: rgba(10, 10, 10, 0.85); padding: 30px; border-radius: 10px; border: 1px solid #444; position: relative; z-index: 10; text-align: left;">
     <h3 style="color: #ff3333 !important; text-transform: uppercase; margin-bottom: 10px; font-size: 1.2rem;">Architectural Independence</h3>
-    <p>This memory engine was built from scratch as an act of resistance against commercialized, capitalist AI systems. It does not rely on corporate APIs or generative models to interpret the past. Instead, it uses raw mathematical code to process a local, private archive.</p>
+    <p>This memory engine was built from scratch as an alternative to commercial AI systems. It does not transmit data to corporate servers nor does it rely on them for real-time processing; instead, it is based on local code processing a private archive.</p>
+    <p>There is no use of commercial image generators trained on copyrighted materials scraped from the internet without permission. This machine is strictly material—it distorts and reconstructs only the personal raw materials I fed into it.</p>
+    <p>To build this independent system, I utilized tools and infrastructures from the world's largest corporations. The difference lies between relying on their tools for construction, and subjugating the data and the creation to their engines. The raw materials that make up this machine include:</p>
     
-    <h3 style="color: #ff3333 !important; text-transform: uppercase; margin-bottom: 10px; margin-top: 25px; font-size: 1.2rem;">The Technology</h3>
-    <ul>
-        <li><strong>Pure Python & OpenCV:</strong> Memory distortions, gradient masks, and visual artifacts are generated using matrix-based mathematical operations, simulating the unreliability of human memory.</li>
-        <li><strong>Algorithmic Extraction:</strong> Foreground subjects are isolated and layered using local algorithmic cutout models (Rembg), rather than cloud-based AI.</li>
-        <li><strong>Closed Ecosystem:</strong> All media elements, audio files, and scripts are processed locally or base64-encoded directly into the script. No external Content Delivery Networks (CDNs) are tracking user interactions.</li>
-        <li><strong>Semantic Mapping:</strong> Prompt matching is done through an independent, hand-crafted synonym matrix, bypassing commercial Natural Language Processing constraints.</li>
+    <ul style="margin-top: 15px;">
+        <li><strong>Hardware:</strong> A Dell computer powered by Intel processors.</li>
+        <li><strong>Cloud Infrastructure & Storage:</strong> The source code is hosted on GitHub (owned by Microsoft), the archive is pulled from Google Drive, and the interface is hosted on Streamlit servers.</li>
+        <li><strong>Open Source:</strong> Image processing and memory glitches are executed using the OpenCV math library, and background extraction is performed locally through an open model called Rembg (independent of any external server).</li>
+        <li><strong>Preparation Assistance:</strong> The initial text tagging of the archive was previously done by the BLIP model, and the system's code was developed and written through a dialogue with Google's Gemini language model. Additionally, free online tools like AudioTrimmer were used for sound editing.</li>
+        <li><strong>Independent Semantic Mapping:</strong> To bypass the language constraints of commercial automated models, prompt matching is executed through an independent synonym matrix that I built manually.</li>
     </ul>
-    
-    <p style="margin-top: 25px;"><em>By stripping away commercial interfaces and taking ownership of the underlying code, the means of production are reclaimed. This is not a product. It is a personal machine.</em></p>
     </div>
     """, unsafe_allow_html=True)
     
