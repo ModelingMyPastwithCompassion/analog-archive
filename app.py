@@ -203,7 +203,7 @@ if st.session_state.human_status == "pending":
     inject_gif_bg(mixer_base64)
     
     st.markdown("<br><br><br><br><br>", unsafe_allow_html=True)
-    st.markdown("<h1>ARE YOU A HUMAN?</h1>", unsafe_allow_html=True)
+    st.markdown("<h1>DO YOU FEEL HUMAN?</h1>", unsafe_allow_html=True)
     st.write("")
     
     audio_intro_path = "INTRO_AUDIO.mp3"
