@@ -262,6 +262,40 @@ elif st.session_state.human_status == "no":
             st.rerun()
 
 # ==========================================
+# מסך 4: הצהרת כוונות טכנית (ABOUT)
+# ==========================================
+elif st.session_state.human_status == "about":
+    inject_image_bg(bg_base64)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<h1>SYSTEM PROTOCOL</h1>", unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div style="background-color: rgba(10, 10, 10, 0.85); padding: 30px; border-radius: 10px; border: 1px solid #444; position: relative; z-index: 10; text-align: left;">
+    <h3 style="color: #ff3333 !important; text-transform: uppercase; margin-bottom: 10px; font-size: 1.2rem;">Architectural Independence</h3>
+    <p>This memory engine was built from scratch as an act of resistance against commercialized, capitalist AI systems. It does not rely on corporate APIs or generative models to interpret the past. Instead, it uses raw mathematical code to process a local, private archive.</p>
+    
+    <h3 style="color: #ff3333 !important; text-transform: uppercase; margin-bottom: 10px; margin-top: 25px; font-size: 1.2rem;">The Technology</h3>
+    <ul>
+        <li><strong>Pure Python & OpenCV:</strong> Memory distortions, gradient masks, and visual artifacts are generated using matrix-based mathematical operations, simulating the unreliability of human memory.</li>
+        <li><strong>Algorithmic Extraction:</strong> Foreground subjects are isolated and layered using local algorithmic cutout models (Rembg), rather than cloud-based AI.</li>
+        <li><strong>Closed Ecosystem:</strong> All media elements, audio files, and scripts are processed locally or base64-encoded directly into the script. No external Content Delivery Networks (CDNs) are tracking user interactions.</li>
+        <li><strong>Semantic Mapping:</strong> Prompt matching is done through an independent, hand-crafted synonym matrix, bypassing commercial Natural Language Processing constraints.</li>
+    </ul>
+    
+    <p style="margin-top: 25px;"><em>By stripping away commercial interfaces and taking ownership of the underlying code, the means of production are reclaimed. This is not a product. It is a personal machine.</em></p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.write("")
+    st.write("")
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        if st.button("RETURN TO ENGINE", use_container_width=True):
+            st.session_state.human_status = "yes"
+            st.rerun()
+
+# ==========================================
 # מסך 3: המנוע עצמו
 # ==========================================
 elif st.session_state.human_status == "yes":
@@ -270,8 +304,7 @@ elif st.session_state.human_status == "yes":
     st.title("Modeling My Past with Compassion")
     st.markdown("""
     <div style="text-align: center; position: relative; z-index: 10;">
-    <em>This engine is a personal archive, constructed from fragments of VHS tapes shot by my parents throughout the 90s. Built as a closed, independent protocol, free from commercial extraction, it merges this analog footage with synthetic processes to simulate how human memory actually works. distorting, adding or subtracting details, and scrambling the timeline. Is this how it really happened, or is this simply how I choose to remember it?
-</em><br><br>
+    <em>This engine is a personal archive, constructed from fragments of VHS tapes shot by my parents throughout the 90s. The cinematography belongs to them. Built as a closed, independent protocol—free from commercial extraction—it merges this analog footage with synthetic processes to simulate how human memory actually works: distorting, adding or subtracting details, and scrambling the timeline. Is this how it really happened, or is this simply how I choose to remember it?</em><br><br>
     <strong>Please treat these materials with compassion.</strong>
     </div>
     <br>
@@ -448,3 +481,11 @@ elif st.session_state.human_status == "yes":
                         mime="image/png",
                         use_container_width=True
                     )
+
+    # כפתור מעבר למסך ההצהרה הטכנית בתחתית מנוע החיפוש
+    st.markdown("<br><hr style='border-color: #333;'><br>", unsafe_allow_html=True)
+    manifesto_col1, manifesto_col2, manifesto_col3 = st.columns([1, 1, 1])
+    with manifesto_col2:
+        if st.button("SYSTEM PROTOCOL", use_container_width=True):
+            st.session_state.human_status = "about"
+            st.rerun()
