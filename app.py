@@ -10,6 +10,9 @@ import gdown
 import io
 import base64
 
+# === הגדרת הלשונית בדפדפן להעלמת הסמל של Streamlit ===
+st.set_page_config(page_title="MEMORY ENGINE", page_icon="📼")
+
 # העלמת התפריטים המובנים והסתרת קישורי הכותרות
 hide_st_style = """
 <style>
@@ -304,7 +307,7 @@ elif st.session_state.human_status == "yes":
     st.title("Modeling My Past with Compassion")
     st.markdown("""
     <div style="text-align: center; position: relative; z-index: 10;">
-    <em>This engine is a personal archive, constructed from fragments of VHS tapes shot by my parents throughout the 90s. The cinematography belongs to them. Built as a closed, independent protocol, free from commercial extraction, it merges this analog footage with synthetic processes to simulate how human memory actually works: distorting, adding or subtracting details, and scrambling the timeline. Is this how it really happened, or is this simply how I choose to remember it?</em><br><br>
+    <em>This engine is a personal archive, constructed from fragments of VHS tapes shot by my parents throughout the 90s. The cinematography belongs to them. Built as a closed, independent protocol—free from commercial extraction—it merges this analog footage with synthetic processes to simulate how human memory actually works: distorting, adding or subtracting details, and scrambling the timeline. Is this how it really happened, or is this simply how I choose to remember it?</em><br><br>
     <strong>Please treat these materials with compassion.</strong>
     </div>
     <br>
